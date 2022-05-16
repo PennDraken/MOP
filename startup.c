@@ -1,4 +1,4 @@
-#define MOVE_SPEED 2
+#define MOVE_SPEED 1
 
 //SYS_TICK
 #define STK_CTRL ((volatile unsigned int *)(0xE000E010))
@@ -31,7 +31,7 @@ unsigned int afrh;
 //GLOBAL VARIABLES--------------------------------------
 int SCREEN_WIDTH = 128;
 int SCREEN_HEIGHT = 64;
-int SQUARE_WIDTH = 8;
+int SQUARE_WIDTH = 4; // height becomes 16, width is 32
 
 
 //STARTUP--------------------------------------------------
@@ -211,9 +211,9 @@ void draw_object(POBJECT obj)
 	int numpixels = obj -> geo -> numpoints;
 	for(int i = 0; i < numpixels; i++)
 	{
-		unsigned char x = obj -> geo -> px[i].x + obj -> posx;
-		unsigned char y = obj -> geo -> px[i].y + obj -> posy;
-		graphic_pixel_set(x * SQUARE_WIDTH, y * SQUARE_WIDTH);
+		unsigned char x = obj -> geo -> px[i].x + (obj -> posx) * SQUARE_WIDTH;
+		unsigned char y = obj -> geo -> px[i].y + (obj -> posy) * SQUARE_WIDTH;
+		graphic_pixel_set(x, y);
 	}
 }
 
@@ -222,8 +222,8 @@ void clear_object(POBJECT obj)
 	int numpixels = obj -> geo -> numpoints;
 	for(int i = 0; i < numpixels; i++)
 	{ 
-		unsigned char x = obj -> geo -> px[i].x + obj -> posx;
-		unsigned char y = obj -> geo -> px[i].y + obj -> posy;
+		unsigned char x = obj -> geo -> px[i].x + (obj -> posx) * SQUARE_WIDTH;
+		unsigned char y = obj -> geo -> px[i].y + (obj -> posy) * SQUARE_WIDTH;
 		graphic_pixel_clear(x, y);
 	}
 }
@@ -253,6 +253,8 @@ void move_appleobject(POBJECT obj)
 	clear_object(obj);
 	int numpixels = obj -> geo -> numpoints;
 	obj -> posx = random(0, SCREEN_WIDTH / SQUARE_WIDTH);
+	obj -> posy = random(0, SCREEN_WIDTH / SQUARE_WIDTH);
+
 	
 	draw_object(obj);
 }
@@ -261,35 +263,32 @@ void move_appleobject(POBJECT obj)
 //DEFINED OBJ.------------------------
 GEOMETRY snake_geometry =
 {
-	22,
-	6,8,	
+	12, // total pixels
+	4,4, // width & height	
 	{
-		{2,0},{3,0},
-		{1,1},{4,1},
-		{0,2},{1,2},{2,2},{3,2},{4,2},{5,2},
-		{0,3},{2,3},{3,3},{5,3},
-		{1,4},{4,4},
-		{2,5},{3,5},
-		{1,6},{4,6},
-		{0,7},{5,7},
-	}
+		{0,0},{1,0},{2,0},{3,0},
+		{0,1},{3,1},
+		{0,2},{3,2},
+		{0,3},{1,3},{2,3},{3,3},
+
+}
 };
 
 static OBJECT snake =
 {
 	&snake_geometry, //geometri
 	0,0,		//init riktnings cord
-	100, 28,		//start pos.
+	5, 2,		//start pos.
 	draw_object,
 	clear_object,
 	move_snakeobject,
 	set_object_speed
 };
 
-GEOMETRY ball_geometry = 
+GEOMETRY apple_geometry = 
 {
 	12,
-	4,4,
+	7,1,
 	{
 		{0,1},{0,2},{1,0},{1,1},{1,2},{1,3},
 		{2,0},{2,1},{2,2},{2,3},{3,1},{3,2}
@@ -298,9 +297,9 @@ GEOMETRY ball_geometry =
 
 static OBJECT apple =
 {
-	&ball_geometry, //geometri
+	&apple_geometry, //geometri
 	4,1,		//init riktnings cord
-	1,32,		//start pos.
+	1,3,		//start pos.
 	draw_object,
 	clear_object,
 	move_appleobject,
@@ -325,23 +324,16 @@ int pixel_overlap(POBJECT o1, POBJECT o2) {
 char object_collides(POBJECT o1, POBJECT o2)
 {	
 	// objects collides
-	if (o1->posx > o2->posx && (o1->posx) < (o2->posx + o2->geo->sizex) &&
-		o1->posy > o2->posy && (o1->posy) < (o2->posy + o2->geo->sizey))
-	{
-		return pixel_overlap(o1, o2);
+	if (o1 -> posx == o2 -> posx && o1->posy == o2->posy) {
+		return 1;
 	}
-	else if (o1->posx + o1->geo->sizex > o2->posx && (o1->posx) + o1->geo->sizex < (o2->posx + o2->geo->sizex) &&
-			 o1->posy + o1->geo->sizey > o2->posy && (o1->posy) + o1->geo->sizey < (o2->posy + o2->geo->sizey))
-	{
-		return pixel_overlap(o1, o2);
-	}
+	
 	// creature outside bounds (very specific)
 	if  (o2 -> posx < 1 ||    
 		128 < o2 -> posx + o2 -> geo -> sizex ||
 		o2 -> posy < 1 ||    
 		64 < o2 -> posy + o2 -> geo -> sizey)
 			return 1;
-	
 	return 0;
 }
 //FUNC.--------------------------------
@@ -350,26 +342,35 @@ char object_collides(POBJECT o1, POBJECT o2)
 void main(void)
 {
 	char c;
-	POBJECT apple = &apple;
-	POBJECT snake = &snake;
+	POBJECT appleobj = &apple;
+	POBJECT snakeobj = &snake;
 	init_app();
 	graphic_initalize();
 	graphic_clear_screen();
+	appleobj -> move(appleobj); // puts apple at random location
 	
 	while (1) {
-		snake -> move(snake);
+		snakeobj -> move(snakeobj);
+		appleobj -> draw(appleobj);
 		c = keyb();
 		
+		
 		switch (c) { // movement
-			case 6: snake  -> set_speed(snake, MOVE_SPEED, 0); break;
-			case 4: snake  -> set_speed(snake, -MOVE_SPEED, 0); break;
-			case 5: snake  -> set_speed(snake, 0, 0); break;
-			case 2: snake  -> set_speed(snake, 0, -MOVE_SPEED); break;
-			case 8: snake  -> set_speed(snake, 0, MOVE_SPEED); break;
-			default:  snake -> set_speed(creature, 0, 0); break;
+			// right
+			case 6: snakeobj  -> set_speed(snakeobj, MOVE_SPEED, 0); break;
+			// left
+			case 4: snakeobj  -> set_speed(snakeobj, -MOVE_SPEED, 0); break;
+			// up
+			case 2: snakeobj  -> set_speed(snakeobj, 0, -MOVE_SPEED); break;
+			// down
+			case 8: snakeobj  -> set_speed(snakeobj, 0, MOVE_SPEED); break;
 		}
 		
-		if (object_collides(victim, creature)) break;
+		if (object_collides(appleobj, snakeobj)) {
+			appleobj -> posx = appleobj -> posx + 3;
+			
+			// appleobj -> move(appleobj); // puts apple at random location
+		}
 		delay_milli(1);
 	}
 	delay_milli(1000);
