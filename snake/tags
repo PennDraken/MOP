@@ -1,0 +1,3 @@
+delay_250ns	C:\Users\Elias\OneDrive - Chalmers Students\Documents\Studies\Programing\mop\cWorkSpace\cWorkSpace\snake\delay.c	/^void delay_250ns( void )$/;"	function	line:3	signature:( void )	returns:void 
+delay_micro	C:\Users\Elias\OneDrive - Chalmers Students\Documents\Studies\Programing\mop\cWorkSpace\cWorkSpace\snake\delay.c	/^void delay_micro(unsigned int us)$/;"	function	line:14	signature:(unsigned int us)	returns:void 
+delay_milli	C:\Users\Elias\OneDrive - Chalmers Students\Documents\Studies\Programing\mop\cWorkSpace\cWorkSpace\snake\delay.c	/^void delay_milli(unsigned int ms) {$/;"	function	line:27	signature:(unsigned int ms)	returns:void 
