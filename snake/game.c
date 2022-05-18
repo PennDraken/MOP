@@ -44,7 +44,6 @@ void graphic_pixel_clear(int x, int y)
 //VARIABLES-----------------------------------
 unsigned int points = 0; // tail size (food eaten)
 
-
 //VARIABLES-----------------------------------
 
 //GRAPHICS DRIVERS----------------------------
@@ -82,20 +81,15 @@ void set_object_speed(POBJECT obj, int x, int y)
 void move_snake(POBJECT snakeO)
 {
 	//deside new pos. by adding dir coordinates to list of points
-	clear_object(snakeO);
 	snakeO-> posx += snakeO-> dirx;
 	snakeO-> posy += snakeO-> diry;
-	draw_object(snakeO);
-	delay_milli(100);
 }
 
 //apple methods
 void move_apple(POBJECT appleO)
 {
-	clear_object(appleO);
 	appleO -> posx = random_number(1, SCREEN_WIDTH);
 	appleO -> posy = random_number(1, SCREEN_HEIGHT);
-	draw_object(appleO);
 }
 //OBJECTS-----------------------------
 
@@ -103,7 +97,7 @@ void move_apple(POBJECT appleO)
 //SNAKE HEAD
 GEOMETRY snake_geometry =
 {
-	12, // total pixels
+	16, // total pixels
 	1,1, // width & height	
 	{
 
@@ -118,7 +112,7 @@ GEOMETRY snake_geometry =
 static OBJECT snake =
 {
 	&snake_geometry, //geometri
-	-MOVE_SPEED,0,		//init riktnings cord
+	-1,0,		//init riktnings cord
 	6*SCREEN_WIDTH/8, SCREEN_HEIGHT/2,		//start pos.
 	draw_object,
 	clear_object,
@@ -151,7 +145,7 @@ static OBJECT apple =
 //SNAKE TAIL
 GEOMETRY tail_geometry =
 {
-	16, // total pixels
+	12, // total pixels
 	1,1, // width & height	
 	{
 		{0,0},{1,0},{2,0},{3,0},
@@ -162,95 +156,132 @@ GEOMETRY tail_geometry =
 	}
 };
 
-static POBJECT create_tail(POBJECT obj, int x, int y) {
-	//obj -> geo = &snake_geometry;
-	obj -> posx = 2;
-	obj -> posy = y;
-	obj -> dirx = 0;
-	obj -> diry = 0;
-	obj -> draw = draw_object;
-	obj -> clear = clear_object;
-	obj -> move = move_snake;
-	obj -> set_speed = set_object_speed;
+
+OBJECT create_tail (int x, int y) {
+	OBJECT obj = {
+		&tail_geometry, //geometri
+		0,0,		//init riktnings cord
+		x, y,		//start pos.
+		draw_object,
+		clear_object,
+		move_snake,
+		set_object_speed
+	};
 	return obj;
+}
+
+void draw_objarr(OBJECT obj[], int amount) {
+	// draws amount members of pobject array
+	for (int i = 0; i < amount; i++) {
+		draw_object(&obj[i]);
+	}
+}
+
+void move_o1_o2(OBJECT o1, OBJECT o2) {
+	// moves o1 to o2
+	if (o1.posx!=o2.posx && o1.posy!=o2.posy) {
+		o1.posx=o2.posx;
+		o1.posy=o2.posy;
+	}
 }
 //SNAKE TAIL
 //DEFINED OBJ.------------------------
 
 //collision detection-------------------------------
-int pixel_overlap(POBJECT o1, POBJECT o2) {
-  int offset1x = o1->posx;
-  int offset1y = o1->posy;
-  int offset2x = o2->posx;
-  int offset2y = o2->posy;
-  for (int i = 0; i < o1->geo->numpoints; i++) {
-    for (int j = 0; j < o2-> geo->numpoints; j++)
-      if ((offset1x + o1->geo->px[i].x == offset2x + o2->geo->px[j].x) &&
-        (offset1y + o1->geo->px[i].y == offset2y + o2->geo->px[j].y)) return 1;
-  }
-  return 0;
-}
 
 char object_collides(POBJECT o1, POBJECT o2)
 {	
 	// objects collides
-	if (o1 -> posx == o2 -> posx && o1->posy == o2->posy) {
-		return 1;
-	}
+	return (o1 -> posx == o2 -> posx && o1->posy == o2->posy);
 }
 //FUNC.-------------------------------
-char game_over(POBJECT snake)
+char game_over(POBJECT snake_head, OBJECT snake_tail[], int points)
 {
-	if
-	(snake->posx < 0 ||
-	 snake->posx > SCREEN_WIDTH ||
-	 snake->posy < 0 ||
-	 snake->posy > SCREEN_HEIGHT)
-	{
-		 return 1;
-	}else return 0;
+	// out of bounds detection
+	if (snake_head->posx < 0 ||
+		snake_head->posx > SCREEN_WIDTH ||
+		snake_head->posy < 0 ||
+		snake_head->posy > SCREEN_HEIGHT) {
+		return 1;
+	}
+	// tail detection
+	for (int i=0; i<points; i++) {
+		if (snake_tail[i].posx == snake_head->posx &&
+			snake_tail[i].posy == snake_head->posy) {
+			return 1;
+		}
+	}
+	return 0;
 }
+
+
 
 //MAIN------------------------------
 void main(void)
 {
-	char c;
+	//object declarations
 	POBJECT appleO = &apple;
 	POBJECT snake_head = &snake;
-	// POBJECT snake_tail = snake_body;
-	POBJECT tail[3];
-	tail[0] = create_tail(tail[0], 2, 2);
-	draw_object(tail[0]);
-	
-//DEFINED OBJ.------------------------
-	
+	OBJECT snake_tail[16*32];	
+	//init
 	init_app();
 	graphic_initalize();
 	graphic_clear_screen();
-	
 	appleO -> draw(appleO);
-	while (!game_over(snake_head)) 
+	// game loop
+	while (!game_over(snake_head, snake_tail, points)) 
 	{
-		snake_head -> move(snake_head);
-		c = keyb();
-		switch (c) { // movement
-			// right
-			case 6: snake_head -> set_speed(snake_head, MOVE_SPEED, 0); break;
-			// left
-			case 4: snake_head -> set_speed(snake_head, -MOVE_SPEED, 0); break;
-			// up
-			case 2: snake_head -> set_speed(snake_head, 0, -MOVE_SPEED); break;
-			// down
-			case 8: snake_head -> set_speed(snake_head, 0, MOVE_SPEED); break;
-		}
-		
+		graphic_clear_screen();
+		// render changes
+		appleO -> draw(appleO);
+		draw_object(snake_head);
+		draw_objarr(snake_tail, points);
+		// if snake eats apple
 		if(object_collides(snake_head, appleO))
 		{
-			appleO -> move(appleO);
-			points++;
+			//write score
+			write_ascii("Score: ", "");
+			// move apple to random location
+			move_apple(appleO);
+			// add tail
+			for (int i = 0; i < TAIL_INCREMENT; i++) {
+				snake_tail[points] = create_tail(snake_head->posx,snake_head->posy);
+				// tally new size of snake by increasing points
+				points++;
+			}
+			
+		} else if (points>0) {
+			// else move entire tail forward
+			for (int i=0; i<points-1; i++) {
+				move_o1_o2(snake_tail[i], snake_tail[i+1]);
+				snake_tail[i].posx=snake_tail[i+1].posx;
+				snake_tail[i].posy=snake_tail[i+1].posy;
+			}
+			// move closest tail piece to previous snake_head position
+			snake_tail[points-1].posx = snake_head->posx;
+			snake_tail[points-1].posy = snake_head->posy;			
 		}
+		// game logic
+		//keypad input
+		switch (keyb()) {
+			// right
+			case 6: snake_head -> set_speed(snake_head, 1, 0); break;
+			// left
+			case 4: snake_head -> set_speed(snake_head, -1, 0); break;
+			// up
+			case 2: snake_head -> set_speed(snake_head, 0, -1); break;
+			// down
+			case 8: snake_head -> set_speed(snake_head, 0, 1); break;
+		}
+			
+		// move snake
+		move_snake(snake_head);
+		// delay
+		delay_milli(30);
 	}
-	delay_milli(1000);
+	// game over
+	delay_milli(10);
 	graphic_clear_screen();
-	write_ascii("Game over", "");
+	write_ascii("Game over! ", "");
+
 }

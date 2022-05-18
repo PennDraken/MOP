@@ -6,7 +6,7 @@
  */
 #define SIMULATOR
 #define MAX_SNAKE_PIXELS 512*12
-#define MOVE_SPEED 1
+#define TAIL_INCREMENT 10
 #define SCREEN_WIDTH 32
 #define SCREEN_HEIGHT 16
 #define SQUARE_WIDTH 4 // height becomes 16, width is 32
