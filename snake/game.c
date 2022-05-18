@@ -41,6 +41,12 @@ void graphic_pixel_clear(int x, int y)
 	__asm volatile(" .HWORD 0xDFF3\n");
 	__asm volatile(" BX LR\n");
 }
+//VARIABLES-----------------------------------
+unsigned int points = 0; // tail size (food eaten)
+
+
+//VARIABLES-----------------------------------
+
 //GRAPHICS DRIVERS----------------------------
 //OBJECT-----------------------------
 //general methods
@@ -94,14 +100,16 @@ void move_apple(POBJECT appleO)
 //OBJECTS-----------------------------
 
 //DEFINED OBJ.------------------------
+//SNAKE HEAD
 GEOMETRY snake_geometry =
 {
 	12, // total pixels
 	1,1, // width & height	
 	{
+
 		{0,0},{1,0},{2,0},{3,0},
-		{0,1},{3,1},
-		{0,2},{3,2},
+		{0,1},{1,1},{2,1},{3,1},
+		{0,2},{1,2},{2,2},{3,2},
 		{0,3},{1,3},{2,3},{3,3},
 
 }
@@ -117,7 +125,8 @@ static OBJECT snake =
 	move_snake,
 	set_object_speed
 };
-
+//SNAKE HEAD
+//APPLE
 GEOMETRY apple_geometry = 
 {
 	12,
@@ -138,6 +147,34 @@ static OBJECT apple =
 	move_apple,
 	set_object_speed
 };
+//APPLE
+//SNAKE TAIL
+GEOMETRY tail_geometry =
+{
+	16, // total pixels
+	1,1, // width & height	
+	{
+		{0,0},{1,0},{2,0},{3,0},
+		{0,1},{3,1},
+		{0,2},{3,2},
+		{0,3},{1,3},{2,3},{3,3},
+
+	}
+};
+
+static POBJECT create_tail(POBJECT obj, int x, int y) {
+	//obj -> geo = &snake_geometry;
+	obj -> posx = 2;
+	obj -> posy = y;
+	obj -> dirx = 0;
+	obj -> diry = 0;
+	obj -> draw = draw_object;
+	obj -> clear = clear_object;
+	obj -> move = move_snake;
+	obj -> set_speed = set_object_speed;
+	return obj;
+}
+//SNAKE TAIL
 //DEFINED OBJ.------------------------
 
 //collision detection-------------------------------
@@ -160,22 +197,14 @@ char object_collides(POBJECT o1, POBJECT o2)
 	if (o1 -> posx == o2 -> posx && o1->posy == o2->posy) {
 		return 1;
 	}
-	
-	// creature outside bounds (very specific)
-	if  (o2 -> posx < 1 ||    
-		128 < o2 -> posx + o2 -> geo -> sizex ||
-		o2 -> posy < 1 ||    
-		64 < o2 -> posy + o2 -> geo -> sizey)
-			return 1;
-	return 0;
 }
 //FUNC.-------------------------------
 char game_over(POBJECT snake)
 {
 	if
-	(snake->posx < 1 ||
+	(snake->posx < 0 ||
 	 snake->posx > SCREEN_WIDTH ||
-	 snake->posy < 1 ||
+	 snake->posy < 0 ||
 	 snake->posy > SCREEN_HEIGHT)
 	{
 		 return 1;
@@ -185,37 +214,40 @@ char game_over(POBJECT snake)
 //MAIN------------------------------
 void main(void)
 {
-	int snake_size = 1;
-	int score = 0;
 	char c;
 	POBJECT appleO = &apple;
-	POBJECT snake_body = &snake;
-	POBJECT snake_tail = snake_body;
+	POBJECT snake_head = &snake;
+	// POBJECT snake_tail = snake_body;
+	POBJECT tail[3];
+	tail[0] = create_tail(tail[0], 2, 2);
+	draw_object(tail[0]);
+	
+//DEFINED OBJ.------------------------
 	
 	init_app();
 	graphic_initalize();
 	graphic_clear_screen();
 	
 	appleO -> draw(appleO);
-	while (!game_over(snake_body)) 
+	while (!game_over(snake_head)) 
 	{
-		snake_body -> move(snake_body);
+		snake_head -> move(snake_head);
 		c = keyb();
 		switch (c) { // movement
 			// right
-			case 6: snake_body -> set_speed(snake_body, MOVE_SPEED, 0); break;
+			case 6: snake_head -> set_speed(snake_head, MOVE_SPEED, 0); break;
 			// left
-			case 4: snake_body -> set_speed(snake_body, -MOVE_SPEED, 0); break;
+			case 4: snake_head -> set_speed(snake_head, -MOVE_SPEED, 0); break;
 			// up
-			case 2: snake_body -> set_speed(snake_body, 0, -MOVE_SPEED); break;
+			case 2: snake_head -> set_speed(snake_head, 0, -MOVE_SPEED); break;
 			// down
-			case 8: snake_body -> set_speed(snake_body, 0, MOVE_SPEED); break;
+			case 8: snake_head -> set_speed(snake_head, 0, MOVE_SPEED); break;
 		}
 		
-		if(object_collides(snake_body, appleO))
+		if(object_collides(snake_head, appleO))
 		{
 			appleO -> move(appleO);
-			score++;
+			points++;
 		}
 	}
 	delay_milli(1000);
