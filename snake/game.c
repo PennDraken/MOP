@@ -297,8 +297,12 @@ void main(void)
 	graphic_clear_screen();
 	char* result;
 	itoa(points, result, 10);
-	write_ascii("Game over! Score:", result);
-	if (points>high_score) high_score = points;
+	if (points>high_score) {
+		 high_score = points;
+		write_ascii("New record! Score:", result);
+	} else {
+		write_ascii("Game over! Score:", result);
+	}
 	delay_milli(50);
 	}
 }
