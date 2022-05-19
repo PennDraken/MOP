@@ -68,7 +68,7 @@ ARM_M4SFPLIB:=$(CodeLiteDir)/tools/gcc-arm/arm-none-eabi/lib/thumb/v7e-m+fp/soft
 ARM_GCC_M4SFPLIB:=$(CodeLiteDir)/tools/gcc-arm/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m+fp/softfp
 ARM_M4HFPLIB:=$(CodeLiteDir)/tools/gcc-arm/arm-none-eabi/lib/thumb/v7e-m+fp/hard
 ARM_GCC_M4HFPLIB:=$(CodeLiteDir)/tools/gcc-arm/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m+fp/hard
-Objects0=$(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix) $(IntermediateDirectory)/ascii_display.c$(ObjectSuffix) $(IntermediateDirectory)/game.c$(ObjectSuffix) $(IntermediateDirectory)/keypad.c$(ObjectSuffix) $(IntermediateDirectory)/init.c$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/geometries.c$(ObjectSuffix) $(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix) $(IntermediateDirectory)/ascii_display.c$(ObjectSuffix) $(IntermediateDirectory)/game.c$(ObjectSuffix) $(IntermediateDirectory)/keypad.c$(ObjectSuffix) $(IntermediateDirectory)/init.c$(ObjectSuffix) 
 
 
 
@@ -105,6 +105,12 @@ PreBuild:
 ##
 ## Objects
 ##
+$(IntermediateDirectory)/geometries.c$(ObjectSuffix): geometries.c
+	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/geometries.c$(ObjectSuffix) -MF$(IntermediateDirectory)/geometries.c$(DependSuffix) -MM geometries.c
+	$(CC) $(SourceSwitch) "C:/Users/henry/OneDrive/Skrivbord/VT21/MOP/MOP/MOP/snake/geometries.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/geometries.c$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/geometries.c$(PreprocessSuffix): geometries.c
+	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/geometries.c$(PreprocessSuffix) geometries.c
+
 $(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix): counting_circuits.c
 	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix) -MF$(IntermediateDirectory)/counting_circuits.c$(DependSuffix) -MM counting_circuits.c
 	$(CC) $(SourceSwitch) "C:/Users/henry/OneDrive/Skrivbord/VT21/MOP/MOP/MOP/snake/counting_circuits.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix) $(IncludePath)

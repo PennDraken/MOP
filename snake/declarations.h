@@ -88,6 +88,13 @@ typedef struct tObj
  //keyboard
  unsigned char keyb();
  //ascii
+ char* itoa(int value, char* result, int base);
  int write_ascii(char line1[], char line2[]);
+// geometries
+GEOMETRY snake_geometry;
+GEOMETRY apple_geometry;
+GEOMETRY tail_geometry;
+
+
 
 #endif

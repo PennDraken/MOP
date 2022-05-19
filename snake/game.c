@@ -43,6 +43,8 @@ void graphic_pixel_clear(int x, int y)
 }
 //VARIABLES-----------------------------------
 unsigned int points = 0; // tail size (food eaten)
+unsigned int high_score = 35; // tail size (food eaten)
+
 
 //VARIABLES-----------------------------------
 
@@ -71,6 +73,12 @@ void clear_object(POBJECT obj)
 	}
 }
 
+void drawclear_object(POBJECT obj) {
+	// clears place of object and then draws it
+	clear_object(obj);
+	draw_object(obj);
+}
+
 void set_object_speed(POBJECT obj, int x, int y)
 {
 	obj -> dirx = x;
@@ -95,19 +103,6 @@ void move_apple(POBJECT appleO)
 
 //DEFINED OBJ.------------------------
 //SNAKE HEAD
-GEOMETRY snake_geometry =
-{
-	16, // total pixels
-	1,1, // width & height	
-	{
-
-		{0,0},{1,0},{2,0},{3,0},
-		{0,1},{1,1},{2,1},{3,1},
-		{0,2},{1,2},{2,2},{3,2},
-		{0,3},{1,3},{2,3},{3,3},
-
-}
-};
 
 static OBJECT snake =
 {
@@ -121,15 +116,6 @@ static OBJECT snake =
 };
 //SNAKE HEAD
 //APPLE
-GEOMETRY apple_geometry = 
-{
-	12,
-	1,1,
-	{
-		{0,1},{0,2},{1,0},{1,1},{1,2},{1,3},
-		{2,0},{2,1},{2,2},{2,3},{3,1},{3,2}
-	}
-};
 
 static OBJECT apple =
 {
@@ -143,18 +129,6 @@ static OBJECT apple =
 };
 //APPLE
 //SNAKE TAIL
-GEOMETRY tail_geometry =
-{
-	12, // total pixels
-	1,1, // width & height	
-	{
-		{0,0},{1,0},{2,0},{3,0},
-		{0,1},{3,1},
-		{0,2},{3,2},
-		{0,3},{1,3},{2,3},{3,3},
-
-	}
-};
 
 
 OBJECT create_tail (int x, int y) {
@@ -177,13 +151,6 @@ void draw_objarr(OBJECT obj[], int amount) {
 	}
 }
 
-void move_o1_o2(OBJECT o1, OBJECT o2) {
-	// moves o1 to o2
-	if (o1.posx!=o2.posx && o1.posy!=o2.posy) {
-		o1.posx=o2.posx;
-		o1.posy=o2.posy;
-	}
-}
 //SNAKE TAIL
 //DEFINED OBJ.------------------------
 
@@ -214,11 +181,20 @@ char game_over(POBJECT snake_head, OBJECT snake_tail[], int points)
 	return 0;
 }
 
-
-
 //MAIN------------------------------
 void main_menu() {
-	write_ascii("High score: 3450", "Press any key:");
+	// convert high score to char[]
+	char row1[] = "High score:              ";
+	char high_score_char[12];
+	itoa(high_score, high_score_char, 10);
+	int j = 0;
+	// adds score to row1
+	for (int i =12; i<20; i++) {
+		row1[i] = high_score_char[j];
+		j++;
+	}
+	// create output text
+	write_ascii(row1, "Press any key:");
 	while (keyb() == 0xFF);
 }
 
@@ -235,22 +211,19 @@ void main(void)
 	POBJECT snake_head = &snake;
 	OBJECT snake_tail[16*32];	
 	appleO -> draw(appleO);
+	
 	// game loop
 	while (!game_over(snake_head, snake_tail, points)) 
 	{
-		graphic_clear_screen();
-		// render changes
-		appleO -> draw(appleO);
-		draw_object(snake_head);
-		draw_objarr(snake_tail, points);
 		// if snake eats apple
 		if(object_collides(snake_head, appleO))
 		{
-			//write score
+			// TODO write score
 			write_ascii("Score: ", "");
 			// move apple to random location
 			move_apple(appleO);
-			// add tail
+			draw_object(appleO);
+			// add new body part (s)
 			for (int i = 0; i < TAIL_INCREMENT; i++) {
 				snake_tail[points] = create_tail(snake_head->posx,snake_head->posy);
 				// tally new size of snake by increasing points
@@ -258,20 +231,26 @@ void main(void)
 			}
 			
 		} else if (points>0) {
-			// else move entire tail forward
-			// clear last piece
-			for (int i=0; i<points-1; i++) {
-				move_o1_o2(snake_tail[i], snake_tail[i+1]);
-				snake_tail[i].posx=snake_tail[i+1].posx;
-				snake_tail[i].posy=snake_tail[i+1].posy;
-			}
+			// clear last piece of tail
+			clear_object(&snake_tail[0]);
 			// move closest tail piece to previous snake_head position
 			snake_tail[points-1].posx = snake_head->posx;
 			snake_tail[points-1].posy = snake_head->posy;
-			// clear snake_head
-			// draw closest snake_tail
+			// else move entire tail forward
+			for (int i=0; i<points-1; i++) {
+				//move_o1_o2(snake_tail[i], snake_tail[i+1]);
+				snake_tail[i].posx = snake_tail[i+1].posx;
+				snake_tail[i].posy = snake_tail[i+1].posy;
+			}
+			//draw new tail piece
+			drawclear_object(&snake_tail[0]);
 		}
-		// game logic
+		clear_object(snake_head);
+		// move snake
+		move_snake(snake_head);
+		if (points>0) drawclear_object(&snake_tail[points-1]);
+		drawclear_object(snake_head);
+		// while systick(flag)
 		//keypad input
 		switch (keyb()) {
 			// right
@@ -284,8 +263,6 @@ void main(void)
 			case 8: snake_head -> set_speed(snake_head, 0, 1); break;
 		}
 			
-		// move snake
-		move_snake(snake_head);
 		// delay
 		delay_milli(30);
 	}
