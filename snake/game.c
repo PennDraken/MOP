@@ -208,14 +208,17 @@ void main_menu() {
 	// create output text
 	write_ascii(row1, "Press any key:");
 	while (keyb() == 0xFF);
+	graphic_clear_screen();
 }
 
 void main(void)
 {
+	while (1) {
 	//game init
 	init_app();
 	graphic_initalize();
 	graphic_clear_screen();
+	points = 0;
 
 	//object declarations
 	main_menu();
@@ -230,8 +233,6 @@ void main(void)
 		// if snake eats apple
 		if(object_collides(snake_head, appleO))
 		{
-			// TODO write score
-			write_ascii("Score: ", "");
 			// move apple to random location
 			move_apple(appleO);
 			draw_object(appleO);
@@ -241,7 +242,18 @@ void main(void)
 				// tally new size of snake by increasing points
 				points++;
 			}
-			
+			// write score
+			char row1[] = "Score:                       ";
+			char high_score_char[12];
+			itoa(points, high_score_char, 10);
+			int j = 0;
+			// adds score to row1
+			for (int i =12; i<20; i++) {
+				row1[i] = high_score_char[j];
+				j++;
+			}
+			// create output text
+			write_ascii(row1, "");
 		} else if (points>0) {
 			// clear last piece of tail
 			clear_object(&snake_tail[0]);
@@ -263,8 +275,9 @@ void main(void)
 		if (points>0) drawclear_object(&snake_tail[points-1]);
 		drawclear_object(snake_head);
 		// while systick(flag)
-		//keypad input
-		switch (keyb()) {
+		for (int i=0; i<DELAY_TIME;i++) {
+			//keypad input
+			switch (keyb()) {
 			// right
 			case 6: snake_head -> set_speed(snake_head, 1, 0); break;
 			// left
@@ -273,14 +286,17 @@ void main(void)
 			case 2: snake_head -> set_speed(snake_head, 0, -1); break;
 			// down
 			case 8: snake_head -> set_speed(snake_head, 0, 1); break;
-		}
 			
-		// delay
-		delay_milli(30);
+			// delay
+			delay_milli(1);
+			}
+		}
 	}
 	// game over
 	delay_milli(10);
 	graphic_clear_screen();
 	write_ascii("Game over! ", "");
-
+	if (points>high_score) high_score = points;
+	delay_milli(50);
+	}
 }

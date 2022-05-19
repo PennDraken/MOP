@@ -2,7 +2,7 @@
 
 GEOMETRY menu_geometry =
 {
-6000,
+4000,
 128,64,
 {
 {51,0},
