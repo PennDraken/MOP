@@ -279,13 +279,13 @@ void main(void)
 			//keypad input
 			switch (keyb()) {
 			// right
-			case 6: snake_head -> set_speed(snake_head, 1, 0); break;
+			case 6: if (snake_head->dirx!=-1) snake_head -> set_speed(snake_head, 1, 0); break;
 			// left
-			case 4: snake_head -> set_speed(snake_head, -1, 0); break;
+			case 4: if (snake_head->dirx!=1) snake_head -> set_speed(snake_head, -1, 0); break;
 			// up
-			case 2: snake_head -> set_speed(snake_head, 0, -1); break;
+			case 2: if (snake_head->diry!=1) snake_head -> set_speed(snake_head, 0, -1); break;
 			// down
-			case 8: snake_head -> set_speed(snake_head, 0, 1); break;
+			case 8: if (snake_head->diry!=-1) snake_head -> set_speed(snake_head, 0, 1); break;
 			
 			// delay
 			delay_milli(1);
