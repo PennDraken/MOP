@@ -62,6 +62,17 @@ void draw_object(POBJECT obj)
 	}
 }
 
+void draw_menu() {
+	int numpixels = menu_geometry.numpoints;
+	for(int i = 0; i < numpixels; i++)
+	{
+		unsigned char x = menu_geometry.px[i].x;
+		unsigned char y = menu_geometry.px[i].y;
+		graphic_pixel_set(x, y);
+	}
+
+}
+
 void clear_object(POBJECT obj)
 {
 	int numpixels = obj -> geo -> numpoints;
@@ -184,6 +195,7 @@ char game_over(POBJECT snake_head, OBJECT snake_tail[], int points)
 //MAIN------------------------------
 void main_menu() {
 	// convert high score to char[]
+	draw_menu();
 	char row1[] = "High score:              ";
 	char high_score_char[12];
 	itoa(high_score, high_score_char, 10);

@@ -1,1 +1,1 @@
-Debug/geometries.c.o Debug/counting_circuits.c.o Debug/ascii_display.c.o Debug/game.c.o Debug/keypad.c.o Debug/init.c.o   
+Debug/geometries.c.o Debug/counting_circuits.c.o Debug/ascii_display.c.o Debug/game.c.o Debug/keypad.c.o Debug/title_screen_geo.c.o Debug/init.c.o   

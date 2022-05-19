@@ -94,7 +94,7 @@ typedef struct tObj
 GEOMETRY snake_geometry;
 GEOMETRY apple_geometry;
 GEOMETRY tail_geometry;
-
+GEOMETRY menu_geometry;
 
 
 #endif

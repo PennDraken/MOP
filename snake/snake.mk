@@ -68,7 +68,7 @@ ARM_M4SFPLIB:=$(CodeLiteDir)/tools/gcc-arm/arm-none-eabi/lib/thumb/v7e-m+fp/soft
 ARM_GCC_M4SFPLIB:=$(CodeLiteDir)/tools/gcc-arm/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m+fp/softfp
 ARM_M4HFPLIB:=$(CodeLiteDir)/tools/gcc-arm/arm-none-eabi/lib/thumb/v7e-m+fp/hard
 ARM_GCC_M4HFPLIB:=$(CodeLiteDir)/tools/gcc-arm/lib/gcc/arm-none-eabi/9.2.1/thumb/v7e-m+fp/hard
-Objects0=$(IntermediateDirectory)/geometries.c$(ObjectSuffix) $(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix) $(IntermediateDirectory)/ascii_display.c$(ObjectSuffix) $(IntermediateDirectory)/game.c$(ObjectSuffix) $(IntermediateDirectory)/keypad.c$(ObjectSuffix) $(IntermediateDirectory)/init.c$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/geometries.c$(ObjectSuffix) $(IntermediateDirectory)/counting_circuits.c$(ObjectSuffix) $(IntermediateDirectory)/ascii_display.c$(ObjectSuffix) $(IntermediateDirectory)/game.c$(ObjectSuffix) $(IntermediateDirectory)/keypad.c$(ObjectSuffix) $(IntermediateDirectory)/title_screen_geo.c$(ObjectSuffix) $(IntermediateDirectory)/init.c$(ObjectSuffix) 
 
 
 
@@ -134,6 +134,12 @@ $(IntermediateDirectory)/keypad.c$(ObjectSuffix): keypad.c
 	$(CC) $(SourceSwitch) "C:/Users/henry/OneDrive/Skrivbord/VT21/MOP/MOP/MOP/snake/keypad.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/keypad.c$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/keypad.c$(PreprocessSuffix): keypad.c
 	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/keypad.c$(PreprocessSuffix) keypad.c
+
+$(IntermediateDirectory)/title_screen_geo.c$(ObjectSuffix): title_screen_geo.c
+	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/title_screen_geo.c$(ObjectSuffix) -MF$(IntermediateDirectory)/title_screen_geo.c$(DependSuffix) -MM title_screen_geo.c
+	$(CC) $(SourceSwitch) "C:/Users/henry/OneDrive/Skrivbord/VT21/MOP/MOP/MOP/snake/title_screen_geo.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/title_screen_geo.c$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/title_screen_geo.c$(PreprocessSuffix): title_screen_geo.c
+	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/title_screen_geo.c$(PreprocessSuffix) title_screen_geo.c
 
 $(IntermediateDirectory)/init.c$(ObjectSuffix): init.c
 	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/init.c$(ObjectSuffix) -MF$(IntermediateDirectory)/init.c$(DependSuffix) -MM init.c
