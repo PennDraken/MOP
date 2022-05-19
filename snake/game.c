@@ -295,7 +295,9 @@ void main(void)
 	// game over
 	delay_milli(10);
 	graphic_clear_screen();
-	write_ascii("Game over! ", "");
+	char* result;
+	itoa(points, result, 10);
+	write_ascii("Game over! Score:", result);
 	if (points>high_score) high_score = points;
 	delay_milli(50);
 	}
