@@ -217,16 +217,23 @@ char game_over(POBJECT snake_head, OBJECT snake_tail[], int points)
 
 
 //MAIN------------------------------
+void main_menu() {
+	write_ascii("High score: 3450", "Press any key:");
+	while (keyb() == 0xFF);
+}
+
 void main(void)
 {
-	//object declarations
-	POBJECT appleO = &apple;
-	POBJECT snake_head = &snake;
-	OBJECT snake_tail[16*32];	
-	//init
+	//game init
 	init_app();
 	graphic_initalize();
 	graphic_clear_screen();
+
+	//object declarations
+	main_menu();
+	POBJECT appleO = &apple;
+	POBJECT snake_head = &snake;
+	OBJECT snake_tail[16*32];	
 	appleO -> draw(appleO);
 	// game loop
 	while (!game_over(snake_head, snake_tail, points)) 
@@ -252,6 +259,7 @@ void main(void)
 			
 		} else if (points>0) {
 			// else move entire tail forward
+			// clear last piece
 			for (int i=0; i<points-1; i++) {
 				move_o1_o2(snake_tail[i], snake_tail[i+1]);
 				snake_tail[i].posx=snake_tail[i+1].posx;
@@ -259,7 +267,9 @@ void main(void)
 			}
 			// move closest tail piece to previous snake_head position
 			snake_tail[points-1].posx = snake_head->posx;
-			snake_tail[points-1].posy = snake_head->posy;			
+			snake_tail[points-1].posy = snake_head->posy;
+			// clear snake_head
+			// draw closest snake_tail
 		}
 		// game logic
 		//keypad input
